@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>CS 180 Project 2</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3 {
+      margin-top: 30px;
+    }
+
+    .image-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .image-row div {
+      text-align: center;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    code {
+      font-family: monospace;
+    }
+  
+    .two-per-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .two-per-row div {
+      text-align: center;
+    }
+
+    .two-per-row img {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+    }
+
+    .three-per-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .three-per-row > div {
+    text-align: center;
+  }
+
+  .three-per-row img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+  }
+  </style>
+</head>
+
+<body>
+
+  <h1>CS 180 Project 2: Fun with Filters and Frequencies!</h1>
+
+  <section id="part-1-1">
+
+    <h2>Part 1.1: Convolutions from Scratch</h2>
+
+    <h3>Original Grayscale Image</h3>
+    <img src="../partoneimages/original_gray.jpg"
+         alt="Original grayscale image"
+         width="400">
+
+    <h3>Four-Loop Convolution Implementation</h3>
+
+    <pre><code>
+def convolutionfourloops(image, filter):
+    x, y = np.shape(image)
+    fx, fy = np.shape(filter)
+
+    px = fx // 2
+    py = fy // 2
+
+    padded = np.zeros((x + (2 * px), y + (2 * py)))
+    padded[px: x + px, py: y + py] = image
+
+    out = np.zeros((x, y))
+
+    filter = filter[::-1, ::-1]
+
+    for i in range(x):
+        for j in range(y):
+            dot = 0
+
+            for fi in range(fx):
+                for fj in range(fy):
+                    dot += padded[i + fi][j + fj] * filter[fi][fj]
+
+            out[i][j] = dot
+
+    return out
+    </code></pre>
+
+    <h3>Two-Loop Convolution Implementation</h3>
+
+    <pre><code>
+def convolutiontwoloops(image, filter):
+    x, y = np.shape(image)
+    fx, fy = np.shape(filter)
+
+    px = fx // 2
+    py = fy // 2
+
+    padded = np.zeros((x + (2 * px), y + (2 * py)))
+    padded[px: x + px, py: y + py] = image
+
+    out = np.zeros((x, y))
+
+    filter = filter[::-1, ::-1]
+
+    for i in range(x):
+        for j in range(y):
+            dot = np.sum(
+                filter * padded[i:i + fx, j:j + fy]
+            )
+
+            out[i][j] = dot
+
+    return out
+    </code></pre>
+
+    <h3>9x9 Box Filter</h3>
+
+    <div class="image-row">
+
+      <div>
+        <h4>Four-Loop</h4>
+        <img src="../partoneimages/four_box.jpg"
+             alt="Four-loop box filter result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>Two-Loop</h4>
+        <img src="../partoneimages/two_box.jpg"
+             alt="Two-loop box filter result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>SciPy</h4>
+        <img src="../partoneimages/scipy_box.jpg"
+             alt="SciPy box filter result"
+             width="300">
+      </div>
+
+    </div>
+
+    <h3>Finite Difference: Dx</h3>
+
+    <div class="image-row">
+
+      <div>
+        <h4>Four-Loop</h4>
+        <img src="../partoneimages/four_dx.jpg"
+             alt="Four-loop Dx result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>Two-Loop</h4>
+        <img src="../partoneimages/two_dx.jpg"
+             alt="Two-loop Dx result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>SciPy</h4>
+        <img src="../partoneimages/scipy_dx.jpg"
+             alt="SciPy Dx result"
+             width="300">
+      </div>
+
+    </div>
+
+    <h3>Finite Difference: Dy</h3>
+
+    <div class="image-row">
+
+      <div>
+        <h4>Four-Loop</h4>
+        <img src="../partoneimages/four_dy.jpg"
+             alt="Four-loop Dy result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>Two-Loop</h4>
+        <img src="../partoneimages/two_dy.jpg"
+             alt="Two-loop Dy result"
+             width="300">
+      </div>
+
+      <div>
+        <h4>SciPy</h4>
+        <img src="../partoneimages/scipy_dy.jpg"
+             alt="SciPy Dy result"
+             width="300">
+      </div>
+
+    </div>
+
+    <h3>Runtime Comparison</h3>
+    <p>
+      The four loop implementation was the slowest since the convolution operation was applied elementwise using two loops. 
+      The two loop implementation was faster due to using NumPy's optimized convolution. 
+      The scipy implementation was the fastest. 
+    </p>
+
+    <h3>Boundary Handling</h3>
+    <p>
+      I handled boundaries by implementing same padding in which zero values were used around the original image. 
+      The padding was of size filter // 2 to maintain the same size of the image after convolution. 
+    </p>
+
+  </section>
+
+  <section id="part-1-2">
+
+  <h2>Part 1.2: Finite Difference Operator</h2>
+
+  <h3>Partial Derivative in X</h3>
+  <img
+    src="../partonepointtwoimages/dx.png"
+    alt="Partial derivative in x"
+    width="400"
+  >
+
+  <h3>Partial Derivative in Y</h3>
+  <img
+    src="../partonepointtwoimages/dy.png"
+    alt="Partial derivative in y"
+    width="400"
+  >
+
+  <h3>Gradient Magnitude</h3>
+  <img
+    src="../partonepointtwoimages/gradient_magnitude.png"
+    alt="Gradient magnitude"
+    width="400"
+  >
+
+  <h3>Binarized Edge Image</h3>
+  <img
+    src="../partonepointtwoimages/edges.png"
+    alt="Binarized edge image"
+    width="400"
+  >
+
+  <h3>Threshold Choice</h3>
+  <p>
+    The 90th percentile pixel value was ~0.17 and I think it is fair to assume that only less than 10 percent of 
+    pixels are edges so I started with a threshold of 0.2 but there was still some dots on the bottom and throughout the image
+    so I moved up to 0.25 which removed some more of the noise without reomving any edges with some faint noise on the bottom still
+    and 0.3 preserved all the major edges with minimal noise so I kept that one. 
+  </p>
+
+</section>
+
+<section id="part-1-3">
+
+  <h2>Part 1.3: Derivative of Gaussian (DoG) Filter</h2>
+
+
+  <h3>Gaussian Smoothed Image</h3>
+  <img
+    src="../partonepointthreeimages/blur.png"
+    alt="Gaussian blurred cameraman image"
+    width="400"
+  >
+
+  <h3>Gradient Magnitude After Gaussian Smoothing</h3>
+  <img
+    src="../partonepointthreeimages/blurgradientmagnitude.png"
+    alt="Gradient magnitude after Gaussian smoothing"
+    width="400"
+  >
+
+  <h3>Binarized Edges After Gaussian Smoothing</h3>
+  <img
+    src="../partonepointthreeimages/blurbinarized.png"
+    alt="Binarized edge image after Gaussian smoothing"
+    width="400"
+  >
+
+  <p>
+After smoothing the image using a Gaussian filter, the binarized edge image is less noisy and the edges are thicker. The main edges of the cameraman and throughout the image are easier to see, while some finer edges and details are gone due to the smoothing.
+  </p>
+
+  <h3>Derivative of Gaussian Filters</h3>
+
+  <div class="image-row">
+
+    <div>
+      <h4>DoG X Filter</h4>
+      <img
+        src="../partonepointthreeimages/dogx.png"
+        alt="Derivative of Gaussian x filter"
+        width="300"
+      >
+    </div>
+
+    <div>
+      <h4>DoG Y Filter</h4>
+      <img
+        src="../partonepointthreeimages/dogy.png"
+        alt="Derivative of Gaussian y filter"
+        width="300"
+      >
+    </div>
+
+  </div>
+
+
+  <h3>Gradient Magnitude Using DoG Filters</h3>
+  <img
+    src="../partonepointthreeimages/doggradientmagnitude.png"
+    alt="Gradient magnitude using derivative of Gaussian filters"
+    width="400"
+  >
+
+  <h3>Binarized Edges Using DoG Filters</h3>
+  <img
+    src="../partonepointthreeimages/dogbinarized.png"
+    alt="Binarized edge image using derivative of Gaussian filters"
+    width="400"
+  >
+
+  <h3>Comparison</h3>
+  <p>
+    Applying the derivative of Gaussian filters directly gives the same result as first smoothing the image and then applying the finite difference filters. The images agree of 99% of pixels. 
+  </p>
+
+</section>
+
+<section id="part-2-1">
+
+  <h2>Part 2.1: Image Sharpening</h2>
+
+  <h3>Unsharp Masking</h3>
+  <p>
+    First, I applied the Gaussian filter from part 1.3 onto the image which blurred the image and removed some high frequency details. I then subtracted the blurred image from the original which gave me the high frequency details of the original image. 
+    Finally, to sharpen the image I added a scaled version of the high frequency image back to the original which enhanced details. 
+
+  </p>
+    
+  <h3>Taj Mahal</h3>
+
+  <div class="two-per-row">
+    <div>
+      <h4>Original</h4>
+      <img src="../parttwopointoneimages/taj_original.png">
+    </div>
+
+    <div>
+      <h4>Blurred</h4>
+      <img src="../parttwopointoneimages/taj_blurred.png">
+    </div>
+
+    <div>
+      <h4>High Frequency</h4>
+      <img src="../parttwopointoneimages/taj_highfrequency.png">
+    </div>
+
+    <div>
+      <h4>Sharpened</h4>
+      <img src="../parttwopointoneimages/taj_sharpened.png">
+    </div>
+  </div>
+
+  <h3>Effect of Sharpening Amount</h3>
+
+  <div class="two-per-row">
+    <div>
+      <h4>Alpha = 0.25</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_0.25.png">
+    </div>
+
+    <div>
+      <h4>Alpha = 0.5</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_0.5.png">
+    </div>
+
+    <div>
+      <h4>Alpha = 1</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_1.png">
+    </div>
+
+    <div>
+      <h4>Alpha = 2</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_2.png">
+    </div>
+
+    <div>
+      <h4>Alpha = 4</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_4.png">
+    </div>
+
+    <div>
+      <h4>Alpha = 8</h4>
+      <img src="../parttwopointoneimages/taj_sharpened_8.png">
+    </div>
+  </div>
+
+  <p>
+    As alpha increases, how much the high frequency component of the image contributes also increases. This is apparent in these images because as alpha increases the images become sharper and the 
+    finer details become more apparent. 
+  </p>
+
+  <h3>Additional Image</h3>
+
+  <div class="two-per-row">
+    <div>
+      <h4>Original</h4>
+      <img src="../parttwopointoneimages/nirmit_original.png">
+    </div>
+
+    <div>
+      <h4>Blurred</h4>
+      <img src="../parttwopointoneimages/nirmit_blurred.png">
+    </div>
+
+    <div>
+      <h4>High Frequency</h4>
+      <img src="../parttwopointoneimages/nirmit_highfrequency.png">
+    </div>
+
+    <div>
+      <h4>Sharpened</h4>
+      <img src="../parttwopointoneimages/nirmit_sharpened.png">
+    </div>
+  </div>
+
+  <h3>Blur and Re-Sharpen Experiment</h3>
+
+  <div class="two-per-row">
+    <div>
+      <h4>Original Sharp Image</h4>
+      <img src="../parttwopointoneimages/landscape.png">
+    </div>
+
+    <div>
+      <h4>Artificially Blurred</h4>
+      <img src="../parttwopointoneimages/landscapeblurred.png">
+    </div>
+
+    <div>
+      <h4>Re-Sharpened</h4>
+      <img src="../parttwopointoneimages/landscapesharpened.png">
+    </div>
+  </div>
+
+  <p>
+    Blurring the image using the Gaussian filter removes alot of the finer high frequency detail. Applying the unsharp mask to this blurred image sharpens it somewhat but still does not restore the original image completely 
+    because some information was lost during blurring which cannot be inferred from the blurred image. 
+  </p>
+
+</section>
+
+<section id="part-2-2">
+
+  <h2>Part 2.2: Hybrid Images</h2>
+
+
+  <h3>Derek and Nutmeg</h3>
+
+  <p>
+    In the hybrid image below, Derek is the high frequency image and his former cat Nutmeg is the 
+    low frequency image. To generate the low frequency image of Nutmeg, I convolved the image
+    with a Gaussian filter in the same way that I did in part 1.3. To generate the high frequency image of Derek,
+    I first convolved the image with a Gaussian filter and then subtracted that blurred version from the original
+    to get the high frequencies. To build the hybrid image, I added the low frequency version of Nutmeg
+    and the high frequency version of Derek. 
+
+    For this hybrid image, the high frequency sigma value used to construct the Gaussian filter was 8 while the 
+    low frequency sigma value was 4. I chose these values because they resulted in the clearest hybrid image in which
+    high frequency details of Derek were visible up close while low frequency details were visible farther away. 
+    For the high frequency sigma value I chose a value which was high enough that mostly high frequency details were 
+    extracted while not being too selective and for the low frequency sigma value I chose a value that didn't result 
+    in too much detail being blurred away.  
+  </p>
+
+
+  <h3>Original Images</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Derek - High Frequency</h4>
+      <img src="../parttwopointtwoimages/derek.png">
+    </div>
+
+    <div>
+      <h4>Nutmeg - Low Frequency</h4>
+      <img src="../parttwopointtwoimages/nutmeg.png">
+    </div>
+
+  </div>
+
+
+  <h3>Aligned Images</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Aligned Derek</h4>
+      <img src="../parttwopointtwoimages/derek_aligned.png">
+    </div>
+
+    <div>
+      <h4>Aligned Nutmeg</h4>
+      <img src="../parttwopointtwoimages/nutmeg_aligned.png">
+    </div>
+
+  </div>
+
+
+  <h3>Fourier Transforms of Aligned Images</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Derek Fourier Transform</h4>
+      <img src="../parttwopointtwoimages/derek_fourier.png">
+    </div>
+
+    <div>
+      <h4>Nutmeg Fourier Transform</h4>
+      <img src="../parttwopointtwoimages/nutmeg_fourier.png">
+    </div>
+
+  </div>
+
+
+  <h3>Filtered Images</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>High Frequency Derek</h4>
+      <img src="../parttwopointtwoimages/high.png">
+    </div>
+
+    <div>
+      <h4>Low Frequency Nutmeg</h4>
+      <img src="../parttwopointtwoimages/low.png">
+    </div>
+
+  </div>
+
+
+  <h3>Fourier Transforms of Filtered Images</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>High Frequency Fourier Transform</h4>
+      <img src="../parttwopointtwoimages/high_frequency_fourier.png">
+    </div>
+
+    <div>
+      <h4>Low Frequency Fourier Transform</h4>
+      <img src="../parttwopointtwoimages/low_frequency_fourier.png">
+    </div>
+
+  </div>
+
+
+  <h3>Final Hybrid</h3>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Derek and Nutmeg Hybrid</h4>
+      <img src="../parttwopointtwoimages/hybrid.png">
+    </div>
+
+    <div>
+      <h4>Hybrid Fourier Transform</h4>
+      <img src="../parttwopointtwoimages/hybrid_fourier.png">
+    </div>
+
+  </div>
+
+
+
+  <h3>Additional Hybrid: Nirmit and Monkey</h3>
+
+  <p>
+    This is another hybrid image of Nirmit and a Monkey. The high frequency details of Nirmit are visible up close and 
+    as you move away the lower frequency general structure of the Monkey becomes visible. 
+  </p>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Nirmit - High Frequency Input</h4>
+      <img src="../parttwopointtwoimages/nirmit.png">
+    </div>
+
+    <div>
+      <h4>Monkey - Low Frequency Input</h4>
+      <img src="../parttwopointtwoimages/monkey.png">
+    </div>
+
+  </div>
+
+  <h4>Final Nirmit and Monkey Hybrid</h4>
+
+  <img
+    src="../parttwopointtwoimages/hybrid2.png"
+    width="500"
+  >
+
+
+
+  <h3>Additional Hybrid: Professor and Goat</h3>
+
+  <p>
+    This is another hybrid image of the Professor and a Goat. The Professor is the high frequency input in which
+    you can see the higher frequency details of the professor up close while the goat becomes more apparent as you move 
+    farther away. 
+  </p>
+
+  <div class="two-per-row">
+
+    <div>
+      <h4>Professor - High Frequency Input</h4>
+      <img src="../parttwopointtwoimages/prof.png">
+    </div>
+
+    <div>
+      <h4>Goat - Low Frequency Input</h4>
+      <img src="../parttwopointtwoimages/goat.png">
+    </div>
+
+  </div>
+
+  <h4>Final Professor and Goat Hybrid</h4>
+
+  <img
+    src="../parttwopointtwoimages/hybrid3.png"
+    width="500"
+  >
+
+</section>
+
+<section id="part-2-3-2-4">
+
+  <h2>Parts 2.3 and 2.4: Multiresolution Blending</h2>
+
+  <h3>Figure 3.42 Recreation</h3>
+
+  <div class="three-per-row">
+
+    <div>
+      <h4>(a)</h4>
+      <img src="../parttwopointfourimages/apple0.png">
+    </div>
+
+    <div>
+      <h4>(b)</h4>
+      <img src="../parttwopointfourimages/orange0.png">
+    </div>
+
+    <div>
+      <h4>(c)</h4>
+      <img src="../parttwopointfourimages/combined0.png">
+    </div>
+
+    <div>
+      <h4>(d)</h4>
+      <img src="../parttwopointfourimages/apple2.png">
+    </div>
+
+    <div>
+      <h4>(e)</h4>
+      <img src="../parttwopointfourimages/orange2.png">
+    </div>
+
+    <div>
+      <h4>(f)</h4>
+      <img src="../parttwopointfourimages/combined2.png">
+    </div>
+
+    <div>
+      <h4>(g)</h4>
+      <img src="../parttwopointfourimages/apple4.png">
+    </div>
+
+    <div>
+      <h4>(h)</h4>
+      <img src="../parttwopointfourimages/orange4.png">
+    </div>
+
+    <div>
+      <h4>(i)</h4>
+      <img src="../parttwopointfourimages/combined4.png">
+    </div>
+
+    <div>
+      <h4>(j)</h4>
+      <img src="../parttwopointfourimages/appleout.png">
+    </div>
+
+    <div>
+      <h4>(k)</h4>
+      <img src="../parttwopointfourimages/orangeout.png">
+    </div>
+
+    <div>
+      <h4>(l)</h4>
+      <img src="../parttwopointfourimages/out.png">
+    </div>
+
+  </div>
+
+
+  <h3>Additional Blend: Sunset Images</h3>
+
+  <div class="three-per-row">
+
+    <div>
+      <h4>Sunset One</h4>
+      <img src="../parttwopointfourimages/sunsetone.png">
+    </div>
+
+    <div>
+      <h4>Sunset Two</h4>
+      <img src="../parttwopointfourimages/sunsettwo.png">
+    </div>
+
+    <div>
+      <h4>Final Blend</h4>
+      <img src="../parttwopointfourimages/sunsetout.png">
+    </div>
+
+  </div>
+
+  <h3>Sunset Blending Process</h3>
+
+<div class="three-per-row">
+
+  <div>
+    <h4>(a)</h4>
+    <img src="../parttwopointfourimages/sunsetone0.png">
+  </div>
+
+  <div>
+    <h4>(b)</h4>
+    <img src="../parttwopointfourimages/sunsettwo0.png">
+  </div>
+
+  <div>
+    <h4>(c)</h4>
+    <img src="../parttwopointfourimages/sunsetcombined0.png">
+  </div>
+
+  <div>
+    <h4>(d)</h4>
+    <img src="../parttwopointfourimages/sunsetone2.png">
+  </div>
+
+  <div>
+    <h4>(e)</h4>
+    <img src="../parttwopointfourimages/sunsettwo2.png">
+  </div>
+
+  <div>
+    <h4>(f)</h4>
+    <img src="../parttwopointfourimages/sunsetcombined2.png">
+  </div>
+
+  <div>
+    <h4>(g)</h4>
+    <img src="../parttwopointfourimages/sunsetone4.png">
+  </div>
+
+  <div>
+    <h4>(h)</h4>
+    <img src="../parttwopointfourimages/sunsettwo4.png">
+  </div>
+
+  <div>
+    <h4>(i)</h4>
+    <img src="../parttwopointfourimages/sunsetcombined4.png">
+  </div>
+
+  <div>
+    <h4>(j)</h4>
+    <img src="../parttwopointfourimages/sunsetoneout.png">
+  </div>
+
+  <div>
+    <h4>(k)</h4>
+    <img src="../parttwopointfourimages/sunsettwoout.png">
+  </div>
+
+  <div>
+    <h4>(l)</h4>
+    <img src="../parttwopointfourimages/sunsetout.png">
+  </div>
+
+</div>
+
+  <h3>Additional Blend: Moon and Night Background</h3>
+
+
+
+<div class="three-per-row">
+  <div>
+    <h4>Moon Image</h4>
+    <img src="../parttwopointfourimages/moon.png">
+  </div>
+
+  <div>
+    <h4>Background Image</h4>
+    <img src="../parttwopointfourimages/background.png">
+  </div>
+
+  <div>
+    <h4>Irregular Mask</h4>
+    <img src="../parttwopointfourimages/moonmask.png">
+  </div>
+
+  <div>
+    <h4>Final Blend</h4>
+    <img src="../parttwopointfourimages/moonout.png">
+  </div>
+</div>
+
+</section>
+
+<section id="reflection">
+  <h2>What I Learned</h2>
+
+  <p>
+    The most important thing I learned from this project is how crucial image frequencies are. Isolating different frequencies of an image allows us to manipulate them in 
+    different ways to achieve the effect we want. For example in 2.1, we used higher frequencies to sharpen images because they corresponded to finer details. Then in 2.2, 
+    using the infromation that higher frequencies were more visible closer to the image, we created hybrid images by combining the high frequencies of one image and the low
+    frequencies of another. Finally, for part 2.3 and 2.4, we blended images by isolating different frequencies of an image and blending each frequency with eachother, allowing 
+    finer details to be blended less while lower frequency details blended more. 
+  </p>
+</section>
+
+</body>
+</html>
+
+
