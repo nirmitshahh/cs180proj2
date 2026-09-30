@@ -684,6 +684,13 @@ After smoothing the image using a Gaussian filter, the binarized edge image is l
 
   <h3>Figure 3.42 Recreation</h3>
 
+  <p>
+    For this part I first created a Gaussian stack by repeatedly applying the Gaussian filter with no subsampling. Then I created Laplacian stacks by taking the difference
+    of consecutive levels of the Gaussian stack. This allowed me to isolate different levels of frequencies from the original image. Then I also took a gaussian stack of a stepwise mask. 
+    Finally, to blend the towo iamges, I combined each corresponding Laplacian level using the corresponding level of the Gaussian stack of the mask. Then, I collapsed all of these 
+    levels to construct the final blended image. This works because when collapsing a Laplacian stack you get the oirginal image. 
+  </p>
+
   <div class="three-per-row">
 
     <div>
@@ -751,6 +758,9 @@ After smoothing the image using a Gaussian filter, the binarized edge image is l
 
   <h3>Additional Blend: Sunset Images</h3>
 
+  <p>
+    I also blended these two sunset images using the same mask as I did for the Oraple. 
+  </p>
   <div class="three-per-row">
 
     <div>
@@ -838,7 +848,9 @@ After smoothing the image using a Gaussian filter, the binarized edge image is l
 
   <h3>Additional Blend: Moon and Night Background</h3>
 
-
+<p>
+  Finally, I blended these two images using a mask which drew a circle around the moon. 
+</p>
 
 <div class="three-per-row">
   <div>
